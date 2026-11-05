@@ -36,7 +36,7 @@ h2{font-size:1.7rem;margin:38px 0 6px}
 .pr{font:400 1.25rem "Alfa Slab One",serif;color:var(--price);white-space:nowrap}
 .card p{margin:0;color:var(--mut);font-size:.93rem}
 select,input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:9px 10px}
-.card button{margin-top:auto}
+.card button{margin-top:auto}.card.off{opacity:.65}.card button:disabled{background:var(--line);color:var(--mut);cursor:not-allowed}
 .sat{margin-top:14px;background:var(--head);color:var(--cream);border-radius:14px;padding:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
 .sat h3{color:var(--mus);font-size:1.2rem}
 #order{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:20px;margin-top:38px}
@@ -69,17 +69,17 @@ footer{background:var(--head);color:var(--cream);padding:24px 16px 90px;text-ali
 <main>
 <section class="hero"><div><h1>Where food is cooked with love.</h1>
 <p>Weekly specials and everyday braai meals, ordered here and confirmed on WhatsApp.</p>
-<div class="pills"><span>Pick-up is free</span><span>Delivery R20.00, Town (CBD) only</span></div>
-<p>Marios Taxi Rank, opposite Overland Bottle Store.<br>WhatsApp orders: 073 481 1184</p></div>
+<div class="pills"><span>Pick-up is free</span><span>Delivery R20.00, Town (CBD) only</span><span>Mon to Sat, 08h00 to 17h00</span><span id="st"></span></div>
+<p>Marios Taxi Rank, opposite Overland Bottle Store.<br>WhatsApp orders: 078 302 5240</p></div>
 <div id="today"></div></section>
-<h2 id="day">Specials of the day</h2><p class="sub">Each special is served on its day, Monday to Friday.</p>
+<h2 id="day">Specials of the day</h2><p class="sub">Each special is only available on its own day. On other days it shows as unavailable.</p>
 <div class="grid" id="g-day"></div>
-<div class="sat"><div><h3>Saturday: Satis Meal, Braai Meal</h3><span class="note" style="color:var(--cream)">Ask us what’s on the pot this Saturday.</span></div><a class="btn" target="_blank" rel="noopener" href="https://wa.me/27734811184?text=Hi%20Ria%E2%80%99s%2C%20what%20is%20the%20Saturday%20Satis%20or%20Braai%20meal%3F">Ask on WhatsApp</a></div>
+<div class="sat"><div><h3>Saturday: Satis Meal, Braai Meal</h3><span class="note" style="color:var(--cream)">Ask us what’s on the pot this Saturday.</span></div><a class="btn" target="_blank" rel="noopener" href="https://wa.me/27783025240?text=Hi%20Ria%E2%80%99s%2C%20what%20is%20the%20Saturday%20Satis%20or%20Braai%20meal%3F">Ask on WhatsApp</a></div>
 <h2 id="braai">Everyday braai meals</h2><p class="sub">Every plate comes with pap and 2 side salads. Choose peri-peri or BBQ.</p>
 <div class="grid" id="g-braai"></div>
 <h2 id="chips">Chips and fast food</h2><p class="sub">&nbsp;</p>
 <div class="grid" id="g-chips"></div>
-<section id="order"><h2>Your order</h2>
+<section id="order"><h2>Your order</h2><p class="note" id="hrs"></p>
 <div id="lines"></div>
 <div class="tot"><span>Subtotal</span><span id="sub">R0.00</span></div>
 <div class="tot"><span id="dl">Pick-up</span><span id="df">Free</span></div>
@@ -92,7 +92,7 @@ footer{background:var(--head);color:var(--cream);padding:24px 16px 90px;text-ali
 <a id="wa" class="btn" target="_blank" rel="noopener" href="#order">Send order on WhatsApp</a>
 <div id="done" hidden><h3>Order ready to send</h3><p>Receipt <b id="rno"></b>. Save your PDF receipt below, and send your WhatsApp message if it didn’t open.</p><button id="pdf" type="button">Download PDF receipt</button> <a id="wa2" class="btn" target="_blank" rel="noopener" href="#order">Open WhatsApp again</a><p class="err" id="perr"></p></div>
 </section></main>
-<footer><b>Ria’s Kitchen &amp; Braai</b><br>Marios Taxi Rank, opposite Overland Bottle Store. WhatsApp 073 481 1184. Good food brings people together.</footer>
+<footer><b>Ria’s Kitchen &amp; Braai</b><br>Marios Taxi Rank, opposite Overland Bottle Store. WhatsApp 078 302 5240. Open Monday to Saturday, 08h00 to 17h00. Good food brings people together.</footer>
 <div id="bar"><a class="btn" href="#order"><span id="bn">View order</span><span id="bt"></span></a></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -105,11 +105,13 @@ const M=[
 const B=[['pork','Braai Pork Plate',55],['beef','Braai Beef Plate',60],['chk','Braai Chicken Quarter Leg Plate',50],['liv','Braai Beef Liver Plate',40]].map(([id,t,p])=>({id,t,d:'With pap and 2 side salads.',p,o:[['Peri-peri','BBQ']]}));
 const C=[['cs','Small Chips',19],['cm','Medium Chips',25],['cl','Large Chips',30],['rm','Medium Russian',20],['rl','Large Russian',32],['vi','Small / Medium Vienna',16]].map(([id,t,p])=>({id,t,d:'',p,o:[]}));
 const ALL=[...M,...B,...C],$=s=>document.querySelector(s),R=n=>'R'+n.toFixed(2),cart={};
-function card(i,tag,cls){return `<article class="card ${cls||''}">${tag?`<span class="tag">${tag}</span>`:''}<div class="row"><h3>${i.t}</h3><span class="pr">${R(i.p)}</span></div>${i.d?`<p>${i.d}</p>`:''}${i.o.map(g=>`<select aria-label="Choose option for ${i.t}">${g.map(x=>`<option>${x}</option>`).join('')}</select>`).join('')}<button type="button" data-add="${i.id}">Add to order</button></article>`}
+const sp=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Africa/Johannesburg',weekday:'short',hour:'numeric',hourCycle:'h23'}).formatToParts(new Date()).map(p=>[p.type,p.value]));
+const dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(sp.weekday),open=dow>=1&&dow<=6&&+sp.hour>=8&&+sp.hour<17;
+function card(i,tag,cls){const na=i.day&&i.day!==dow;return `<article class="card ${cls||''} ${na?'off':''}">${tag?`<span class="tag">${tag}</span>`:''}<div class="row"><h3>${i.t}</h3><span class="pr">${R(i.p)}</span></div>${i.d?`<p>${i.d}</p>`:''}${i.o.map(g=>`<select aria-label="Choose option for ${i.t}"${na?' disabled':''}>${g.map(x=>`<option>${x}</option>`).join('')}</select>`).join('')}${na?`<button type="button" disabled>Only available on ${i.dn}s</button>`:`<button type="button" data-add="${i.id}">Add to order</button>`}</article>`}
 $('#g-day').innerHTML=M.map(i=>card(i,i.dn)).join('');
 $('#g-braai').innerHTML=B.map(i=>card(i)).join('');
 $('#g-chips').innerHTML=C.map(i=>card(i)).join('');
-const dow=new Date().getDay(),ts=M.find(i=>i.day===dow);
+const ts=M.find(i=>i.day===dow);$('#st').textContent=open?'Open now':'Closed now';$('#hrs').textContent='Trading hours: Monday to Saturday, 08h00 to 17h00.'+(open?'':' We’re closed right now, so orders can’t be sent until we open.');
 $('#today').innerHTML=ts?card(ts,'Today, '+ts.dn,'today'):card(B[0],'Braai meal of the day','today');
 document.addEventListener('click',e=>{const b=e.target.closest('[data-add]');if(b){const i=ALL.find(x=>x.id===b.dataset.add),op=[...b.parentElement.querySelectorAll('select')].map(s=>s.value),k=i.id+'|'+op.join('/');(cart[k]=cart[k]||{i,op,q:0}).q++;draw()}
 const q=e.target.closest('[data-q]');if(q){const[k,d]=q.dataset.q.split('~');cart[k].q+=+d;if(cart[k].q<1)delete cart[k];draw()}});
@@ -124,18 +126,18 @@ let rc=null;
 function lines(){return Object.values(cart).map(l=>({n:l.i.t+(l.op.length?' ('+l.op.join(', ')+')':''),q:l.q,u:l.i.p}))}
 function msg(r){return `*New order: Ria’s Kitchen & Braai*\nReceipt: ${r.no}\nName: ${r.name}\nPhone: ${r.phone}\n`+(r.del?`Delivery to: ${r.addr}\n`:'Pick-up at Marios Taxi Rank\n')+r.items.map(l=>`${l.q} x ${l.n} = ${R(l.q*l.u)}`).join('\n')+(r.del?'\nDelivery: R20.00':'')+`\n*Total: ${R(r.t)}*`+(r.note?`\nNote: ${r.note}`:'')}
 $('#wa').addEventListener('click',e=>{const name=$('#name').value.trim(),phone=$('#phone').value.trim(),addr=$('#addr').value.trim(),m=sums();let er='';
-if(!m.s)er='Add at least one meal to your order.';else if(!name||!phone)er='Enter your name and phone number.';else if(del()&&!addr)er='Enter your delivery address in Town (CBD).';
+if(!open)er='We’re closed right now. Orders open Monday to Saturday, 08h00 to 17h00.';else if(!m.s)er='Add at least one meal to your order.';else if(!name||!phone)er='Enter your name and phone number.';else if(del()&&!addr)er='Enter your delivery address in Town (CBD).';
 $('#err').textContent=er;if(er){e.preventDefault();return}
 const d=new Date(),p=n=>String(n).padStart(2,'0');
 rc={no:'RKB-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+Math.floor(100+Math.random()*900),date:d.toLocaleString('en-ZA'),name,phone,del:del(),addr,note:$('#note').value.trim(),items:lines(),s:m.s,f:m.f,t:m.t};
-const u='https://wa.me/27734811184?text='+encodeURIComponent(msg(rc));$('#wa').href=u;$('#wa2').href=u;$('#rno').textContent=rc.no;$('#done').hidden=false});
+const u='https://wa.me/27783025240?text='+encodeURIComponent(msg(rc));$('#wa').href=u;$('#wa2').href=u;$('#rno').textContent=rc.no;$('#done').hidden=false});
 $('#pdf').onclick=async()=>{const r=rc;if(!r)return;$('#perr').textContent='';
 try{const{jsPDF}=window.jspdf,d=new jsPDF({unit:'mm',format:'a4'});
 try{d.addImage($('.logo').src,'JPEG',15,12,28,28)}catch(x){}
 d.setFont('helvetica','bold').setFontSize(20).text("Ria's Kitchen & Braai",48,22);
 d.setFont('helvetica','italic').setFontSize(10).text('Where food is cooked with love.',48,28);
-d.setFont('helvetica','normal').text('Marios Taxi Rank, opposite Overland Bottle Store',48,34).text('WhatsApp orders: 073 481 1184',48,39);
-d.setDrawColor(242,169,0).setLineWidth(1).line(15,46,195,46);
+d.setFont('helvetica','normal').text('Marios Taxi Rank, opposite Overland Bottle Store',48,34).text('WhatsApp orders: 078 302 5240',48,39).text('Open Monday to Saturday, 08h00 to 17h00',48,44);
+d.setDrawColor(242,169,0).setLineWidth(1).line(15,49,195,49);
 d.setFont('helvetica','bold').setFontSize(14).text('ORDER RECEIPT',15,56);
 d.setFont('helvetica','normal').setFontSize(10);let y=63;
 [['Receipt no.',r.no],['Date',r.date],['Customer',r.name],['Phone',r.phone],['Method',r.del?'Delivery (Town CBD)':'Pick-up (free)']].concat(r.del?[['Address',r.addr]]:[]).forEach(([a,b])=>{d.setFont('helvetica','bold').text(a,15,y);d.setFont('helvetica','normal').text(String(b),50,y);y+=6});
